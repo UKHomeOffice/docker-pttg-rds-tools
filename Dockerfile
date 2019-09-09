@@ -1,6 +1,6 @@
 FROM quay.io/ukhomeofficedigital/docker-aws-cli:v0.1
 
-ADD ./scripts/ /
+COPY ./scripts /scripts
 
 RUN chmod a+x scripts
 
