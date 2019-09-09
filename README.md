@@ -7,6 +7,10 @@ entrypoint of the container. Remove the entrypoint if this is ever expaneded wit
 ### Drone variables:
 * DOCKER_PASSWORD - the password for the quay robot used to deploy to quay. 
 
+### Runtime Environment variables:
+* AWS_ACCESS_KEY_ID - the access key giving permission to the AWS resource
+* AWS_SECRET_ACCESS_KEY - the secret access key giving permission to the AWS resource
+
 ## start-rds.sh
 Checks if the RDS instance is available, and if not then attempts to start it and waits for 
 the instance to become available.
