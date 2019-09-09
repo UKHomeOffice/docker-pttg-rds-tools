@@ -18,11 +18,11 @@ function waitForInstanceAvailable() {
         if [ "$current_status" == "available" ]; then
             echo "${RDS_INSTANCE} is now available"
             break
-        elif [ "$current_status" == "stopped" ]; then
-            echo "${RDS_INSTANCE} is at status stopped. Aborting as this will not become available."
+        elif [ "$current_status" != "starting" ]; then
+            echo "${RDS_INSTANCE} is at status $current_status. Aborting as this will not become available."
             break
         else
-            echo  "${RDS_INSTANCE} has status $current_status.  Waiting until available."
+            echo  "${RDS_INSTANCE} is still starting. Waiting until available."
         fi
 
         sleep 60
@@ -53,9 +53,12 @@ function startRdsInstanceIfStopped() {
             echo "Failed to start RDS instance ${RDS_INSTANCE}"
         fi
     else
-        echo "RDS instance ${RDS_INSTANCE} is already available - not starting instance."
+        echo "RDS instance ${RDS_INSTANCE} is in state $instance_status - cannot start instance."
     fi
 }
 
 startRdsInstanceIfStopped
-waitForInstanceAvailable
+rdsStatus=$(getRdsStatus)
+if [ "$rdsStatus" == "starting" ]; then
+    waitForInstanceAvailable
+fi
