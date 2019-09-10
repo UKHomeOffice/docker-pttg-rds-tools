@@ -1,5 +1,7 @@
 FROM quay.io/ukhomeofficedigital/docker-aws-cli:v0.1
 
+RUN apk add bash
+
 COPY ./scripts /scripts
 
 USER 1000
