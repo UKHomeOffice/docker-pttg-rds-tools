@@ -4,4 +4,4 @@ COPY ./scripts /scripts
 
 USER 1000
 
-ENTRYPOINT ["start-rds.sh"]
+ENTRYPOINT ["scripts/start-rds.sh"]
