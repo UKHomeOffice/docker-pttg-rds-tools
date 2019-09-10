@@ -1,6 +1,6 @@
 FROM quay.io/ukhomeofficedigital/docker-aws-cli:v0.1
 
-USER ROOT
+USER root
 COPY ./scripts /scripts
 RUN apk update && \
     apk upgrade && \
