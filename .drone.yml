@@ -16,7 +16,7 @@ pipeline:
     secrets:
       - docker_password
     commands:
-      - docker login -u="ukhomeofficedigital+pttg" -p=$${DOCKER_PASSWORD} quay.io
+      - docker login -u="ukhomeofficedigital+docker_pttg_rds_tools" -p=$${DOCKER_PASSWORD} quay.io
       - docker tag docker-pttg-rds-tools quay.io/ukhomeofficedigital/docker-pttg-rds-tools:build-$${DRONE_BUILD_NUMBER}
       - docker tag docker-pttg-rds-tools quay.io/ukhomeofficedigital/docker-pttg-rds-tools:latest
       - docker push quay.io/ukhomeofficedigital/docker-pttg-rds-tools:build-$${DRONE_BUILD_NUMBER}
@@ -32,7 +32,7 @@ pipeline:
     secrets:
       - docker_password
     commands:
-      - docker login -u="ukhomeofficedigital+pttg" -p=$${DOCKER_PASSWORD} quay.io
+      - docker login -u="ukhomeofficedigital+docker_pttg_rds_tools" -p=$${DOCKER_PASSWORD} quay.io
       - docker tag docker-pttg-rds-tools quay.io/ukhomeofficedigital/docker-pttg-rds-tools:$${DRONE_TAG}
       - docker push quay.io/ukhomeofficedigital/docker-pttg-rds-tools:$${DRONE_TAG}
     when:
