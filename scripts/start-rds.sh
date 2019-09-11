@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+PS4='$LINENO'
+set -x
+
 function getRdsStatus() {
     for attempt in {1..10}
     do
