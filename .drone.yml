@@ -23,7 +23,7 @@ pipeline:
       - docker push quay.io/ukhomeofficedigital/docker-pttg-rds-tools:latest
     when:
       event: push
-      branch: master
+      branch: [master]
 
   tag_version:
     image: docker:17.09.1

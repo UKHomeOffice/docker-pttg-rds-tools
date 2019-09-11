@@ -56,6 +56,14 @@ function startRdsInstanceIfStopped() {
     fi
 }
 
+function abortIfNoAwsAccess() {
+    if [[ -z ${AWS_ACCESS_KEY_ID} ]] || [[ -z ${AWS_SECRET_ACCESS_KEY} ]]; then
+        echo "AWS access key unavailable - aborting.  (This is deliberate in production)."
+        exit 0
+    fi
+}
+
+abortIfNoAwsAccess
 startRdsInstanceIfStopped
 rds_status=$(getRdsStatus)
 if [[ "$rds_status" == "starting" ]] || [[ "$rds_status" == "rebooting" ]]; then
