@@ -7,7 +7,7 @@ function getRdsStatus() {
     for attempt in {1..10}
     do
         rds_status=$(aws rds describe-db-instances --db-instance-identifier ${RDS_INSTANCE} --query 'DBInstances[0].DBInstanceStatus' --output text)
-        if [ -z ${rds_status} ]; then
+        if [[ ! -z ${rds_status} ]]; then
             break
         fi
     done
@@ -18,10 +18,10 @@ function waitForInstanceAvailable() {
     for attempt in {1..10}
     do
         current_status=$(getRdsStatus)
-        if [ "$current_status" == "available" ]; then
+        if [[ "$current_status" == "available" ]]; then
             echo "${RDS_INSTANCE} is now available"
             break
-        elif [ "$current_status" != "starting" ] && [ "$current_status" != "rebooting" ]; then
+        elif [[ "$current_status" != "starting" ]] && [[ "$current_status" != "rebooting" ]]; then
             echo "${RDS_INSTANCE} is at status $current_status. Aborting as this will not become available."
             break
         else
@@ -37,7 +37,7 @@ function startRdsInstance() {
     do
         aws rds start-db-instance --db-instance-identifier ${RDS_INSTANCE}
         starting_status=$?
-        if [ $starting_status -eq 0 ]; then
+        if [[ ${starting_status} -eq 0 ]]; then
             break
         fi
         sleep 1
@@ -47,10 +47,10 @@ function startRdsInstance() {
 
 function startRdsInstanceIfStopped() {
     instance_status=$(getRdsStatus)
-    if [ "$instance_status" == "stopped" ]; then
+    if [[ "$instance_status" == "stopped" ]]; then
         echo "RDS instance status = $instance_status.  Starting RDS instance ${RDS_INSTANCE}"
         start_status=$(startRdsInstance)
-        if [ $start_status -eq 0 ]; then
+        if [[ ${start_status} -eq 0 ]]; then
             echo "RDS instance ${RDS_INSTANCE} start requested."
         else
             echo "Failed to start RDS instance ${RDS_INSTANCE}"
@@ -62,6 +62,6 @@ function startRdsInstanceIfStopped() {
 
 startRdsInstanceIfStopped
 rdsStatus=$(getRdsStatus)
-if [ "$rdsStatus" == "starting" ]; then
+if [[ "$rdsStatus" == "starting" ]]; then
     waitForInstanceAvailable
 fi
