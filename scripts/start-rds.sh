@@ -11,7 +11,7 @@ function getRdsStatus() {
             break
         fi
     done
-    echo $rds_status
+    echo ${rds_status}
 }
 
 function waitForInstanceAvailable() {
@@ -35,13 +35,13 @@ function waitForInstanceAvailable() {
 function startRdsInstance() {
     for attempt in {1..10}
     do
-        startingStatus=$(aws rds start-db-instance --db-instance-identifier ${RDS_INSTANCE} | jq -r '.[].DBInstanceStatus')
+        starting_status=$(aws rds start-db-instance --db-instance-identifier ${RDS_INSTANCE} | jq -r '.[].DBInstanceStatus')
         if [[ ${starting_status} == "starting" ]]; then
             break
         fi
         sleep 1
     done
-    echo $starting_status
+    echo ${starting_status}
 }
 
 function startRdsInstanceIfStopped() {
@@ -60,7 +60,7 @@ function startRdsInstanceIfStopped() {
 }
 
 startRdsInstanceIfStopped
-rdsStatus=$(getRdsStatus)
-if [[ "$rdsStatus" == "starting" ]] || [[ "$rdsStatus" == "rebooting" ]]; then
+rds_status=$(getRdsStatus)
+if [[ "$rds_status" == "starting" ]] || [[ "$rds_status" == "rebooting" ]]; then
     waitForInstanceAvailable
 fi
