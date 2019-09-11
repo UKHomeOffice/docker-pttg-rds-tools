@@ -10,6 +10,7 @@ entrypoint of the container. Remove the entrypoint if this is ever expaneded wit
 ### Runtime Environment variables:
 * AWS_ACCESS_KEY_ID - the access key giving permission to the AWS resource
 * AWS_SECRET_ACCESS_KEY - the secret access key giving permission to the AWS resource
+* AWS_DEFAULT_REGION - the AWS region where the DB instance resides
 
 ## start-rds.sh
 Checks if the RDS instance is available, and if not then attempts to start it and waits for 
