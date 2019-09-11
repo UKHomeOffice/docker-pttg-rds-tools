@@ -57,6 +57,8 @@ function startRdsInstanceIfStopped() {
 }
 
 function abortIfNoAwsAccess() {
+    echo "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
+    echo "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
     if [[ -z AWS_ACCESS_KEY_ID ]] || [[ -z AWS_SECRET_ACCESS_KEY ]]; then
         echo "No AWS connection details available - aborting."
         exit 0
