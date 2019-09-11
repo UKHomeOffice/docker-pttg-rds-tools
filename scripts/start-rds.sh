@@ -35,7 +35,7 @@ function waitForInstanceAvailable() {
 function startRdsInstance() {
     for attempt in {1..10}
     do
-        startingStatus=$(aws rds start-db-instance --db-instance-identifier ${RDS_INSTANCE} --query 'DBInstances[0].DBInstanceStatus' --output text)
+        startingStatus=$(aws rds start-db-instance --db-instance-identifier ${RDS_INSTANCE} | jq '.[].DBInstanceStatus')
         if [[ ${starting_status} == "starting" ]]; then
             break
         fi
