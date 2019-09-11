@@ -18,7 +18,7 @@ function waitForInstanceAvailable() {
         if [ "$current_status" == "available" ]; then
             echo "${RDS_INSTANCE} is now available"
             break
-        elif [ "$current_status" != "starting" ]; then
+        elif [ "$current_status" != "starting" ] && [ "$current_status" != "rebooting" ]; then
             echo "${RDS_INSTANCE} is at status $current_status. Aborting as this will not become available."
             break
         else
