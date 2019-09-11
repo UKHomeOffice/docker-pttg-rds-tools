@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -x
+
 function getRdsStatus() {
     for attempt in {1..10}
     do
