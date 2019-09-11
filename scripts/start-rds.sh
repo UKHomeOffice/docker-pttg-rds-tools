@@ -35,9 +35,8 @@ function waitForInstanceAvailable() {
 function startRdsInstance() {
     for attempt in {1..10}
     do
-        aws rds start-db-instance --db-instance-identifier ${RDS_INSTANCE}
-        starting_status=$?
-        if [[ ${starting_status} -eq 0 ]]; then
+        startingStatus=$(aws rds start-db-instance --db-instance-identifier ${RDS_INSTANCE} --query 'DBInstances[0].DBInstanceStatus' --output text)
+        if [[ ${starting_status} == "starting" ]]; then
             break
         fi
         sleep 1
@@ -50,7 +49,7 @@ function startRdsInstanceIfStopped() {
     if [[ "$instance_status" == "stopped" ]]; then
         echo "RDS instance status = $instance_status.  Starting RDS instance ${RDS_INSTANCE}"
         start_status=$(startRdsInstance)
-        if [[ ${start_status} -eq 0 ]]; then
+        if [[ ${start_status} == "starting" ]]; then
             echo "RDS instance ${RDS_INSTANCE} start requested."
         else
             echo "Failed to start RDS instance ${RDS_INSTANCE}"
@@ -62,6 +61,6 @@ function startRdsInstanceIfStopped() {
 
 startRdsInstanceIfStopped
 rdsStatus=$(getRdsStatus)
-if [[ "$rdsStatus" == "starting" ]]; then
+if [[ "$rdsStatus" == "starting" ]] || [[ "$rdsStatus" == "rebooting" ]]; then
     waitForInstanceAvailable
 fi
