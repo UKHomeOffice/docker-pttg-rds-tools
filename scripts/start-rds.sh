@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-source common.sh
+pushd ./scripts
+source ./common.sh
+popd
 
 abortIfNoAwsAccess
 startRdsInstanceIfStopped
