@@ -8,3 +8,5 @@ RUN apk update && \
     apk add jq
 
 USER 1000
+
+CMD source ./scripts/common.sh
