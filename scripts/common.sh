@@ -65,7 +65,7 @@ function abortIfNoAwsAccess() {
 }
 
 function stopRdsInstance() {
-    if [[ "${STOP_RDS}" != "true" ]]; then
+    if [[ ${STOP_RDS} != "true" ]]; then
         echo "Not stopping RDS instance - STOP_RDS=${STOP_RDS}"
         exit 0
     fi
