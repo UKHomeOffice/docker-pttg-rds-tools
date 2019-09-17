@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source common.sh
+
 abortIfNoAwsAccess
 startRdsInstanceIfStopped
 rds_status=$(getRdsStatus)
