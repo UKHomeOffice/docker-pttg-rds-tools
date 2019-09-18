@@ -8,4 +8,5 @@ RUN apk update && \
     apk add jq
 
 USER 1000
-ENTRYPOINT ["scripts/start-rds.sh"]
+
+CMD source ./scripts/common.sh
