@@ -23,6 +23,7 @@ oneTimeTearDown() {
 
 setUp() {
     files_to_clean_up_in_tear_down=()
+    RDS_INSTANCE='test-rds-instance'
 }
 
 tearDown() {
@@ -89,7 +90,7 @@ testGetRdsStatus_rdsInstanceDefined_instanceSentToAws() {
 
 testWaitForInstanceAvailable_available_reportsAvailable() {
     mockGetRdsStatus 'available'
-    WAIT_TIME_SECONDS=1
+    STATUS_WAIT_TIME_SECONDS=1
 
     rds_status=$(waitForInstanceAvailable)
 
@@ -98,7 +99,7 @@ testWaitForInstanceAvailable_available_reportsAvailable() {
 
 testWaitForInstanceAvailable_available_getsStatusOnce() {
     mockGetRdsStatus 'available'
-    WAIT_TIME_SECONDS=1
+    STATUS_WAIT_TIME_SECONDS=1
 
     waitForInstanceAvailable
 
@@ -107,7 +108,7 @@ testWaitForInstanceAvailable_available_getsStatusOnce() {
 
 testWaitForInstanceAvailable_starting_getsStatus10Times() {
     mockGetRdsStatus 'starting'
-    WAIT_TIME_SECONDS=0
+    STATUS_WAIT_TIME_SECONDS=0
 
     waitForInstanceAvailable
 
@@ -116,7 +117,7 @@ testWaitForInstanceAvailable_starting_getsStatus10Times() {
 
 testWaitForInstanceAvailable_stopping_reportsAborting() {
     mockGetRdsStatus 'stopping'
-    WAIT_TIME_SECONDS=1
+    STATUS_WAIT_TIME_SECONDS=1
 
     rds_status=$(waitForInstanceAvailable)
 
@@ -125,11 +126,79 @@ testWaitForInstanceAvailable_stopping_reportsAborting() {
 
 testWaitForInstanceAvailable_stopping_getsStatusOnce() {
     mockGetRdsStatus 'stopping'
-    WAIT_TIME_SECONDS=1
+    STATUS_WAIT_TIME_SECONDS=1
 
     waitForInstanceAvailable
 
     assertEquals 'Should make 1 call to getRdsStatus' 1 $(< getrdsstatusnumbercalls)
+}
+
+###################
+# startRdsInstance
+###################
+
+testStartRdsInstance_starting_returnsStatus() {
+    mockAws '{ "DBInstance": { "DBInstanceStatus": "starting" }}'
+
+    rds_status=$(startRdsInstance)
+
+    assertEquals 'Should return status starting' "$rds_status" 'starting'
+}
+
+testStartRdsInstance_starting_callsOnce() {
+    mockAws '{ "DBInstance": { "DBInstanceStatus": "starting" }}'
+
+    startRdsInstance
+
+    assertEquals 'Should call aws once' 1 $(< awsnumbercalls)
+}
+
+testStartRdsInstance_notStarting_calls10Times() {
+    mockAws '{ "DBInstance": { "DBInstanceStatus": "notstarting" }}'
+    START_WAIT_TIME_SECONDS=0
+
+    startRdsInstance
+
+    assertEquals 'Should call aws ten times' 10 $(< awsnumbercalls)
+}
+
+############################
+# startRdsInstanceIfStopped
+############################
+
+testStartRdsInstanceIfStopped_notStopped_reportsCannotStart() {
+    mockGetRdsStatus 'available'
+
+    rds_status=$(startRdsInstanceIfStopped)
+
+    assertContains 'Should report cannot start' "${rds_status}" 'cannot start instance'
+}
+
+testStartRdsInstanceIfStopped_stopped_attemptsToStart() {
+    mockGetRdsStatus 'stopped'
+    mockStartRdsInstance 'starting'
+
+    startRdsInstanceIfStopped
+
+    assertEquals 'Should call start rds instance' 1 $(< start-rds-instance-number-calls)
+}
+
+testStartRdsInstanceIfStopped_stoppedThenStarting_reportsStarting() {
+    mockGetRdsStatus 'stopped'
+    mockStartRdsInstance 'starting'
+
+    rds_status=$(startRdsInstanceIfStopped)
+
+    assertContains 'A start was requested' "${rds_status}" 'start requested'
+}
+
+testStartRdsInstanceIfStopped_stoppedStillStopped_reportsFailureToStart() {
+    mockGetRdsStatus 'stopped'
+    mockStartRdsInstance 'stopped'
+
+    rds_status=$(startRdsInstanceIfStopped)
+
+    assertContains 'A failure was reported' "${rds_status}" 'Failed to start'
 }
 
 ####################
@@ -149,15 +218,14 @@ copyScripts() {
 mockAws() {
 
     commandToMock='aws'
+    aws_return_data=$1
 
-    echo "mock the '${commandToMock}' command"
-
-    return_data=$1
+    echo "mock the '${commandToMock}' command with return data '${aws_return_data}'"
 
     aws() {
         echo "${@}" >> awscapturedargs
         incrementCallCount "awsnumbercalls"
-        echo ${return_data}
+        echo ${aws_return_data}
     }
 
     export -f aws
@@ -170,20 +238,37 @@ mockAws() {
 mockGetRdsStatus() {
 
     commandToMock='getRdsStatus'
+    get_rds_status_return_data=$1
 
-    echo "mock the '${commandToMock}' command"
-
-    return_data=$1
+    echo "mock the '${commandToMock}' command with return data '${get_rds_status_return_data}'"
 
     getRdsStatus() {
         incrementCallCount "getrdsstatusnumbercalls"
-        echo ${return_data}
+        echo ${get_rds_status_return_data}
     }
 
     export -f getRdsStatus
 
     mocked_commands_to_clean_up_in_tear_down+=("${commandToMock}")
     files_to_clean_up_in_tear_down+=("getrdsstatusnumbercalls")
+}
+
+mockStartRdsInstance() {
+
+    commandToMock='startRdsInstance'
+    start_rds_instance_return_data=$1
+
+    echo "mock the '${commandToMock}' command with return data '${start_rds_instance_return_data}'"
+
+    startRdsInstance() {
+        incrementCallCount "start-rds-instance-number-calls"
+        echo ${start_rds_instance_return_data}
+    }
+
+    export -f startRdsInstance
+
+    mocked_commands_to_clean_up_in_tear_down+=("${commandToMock}")
+    files_to_clean_up_in_tear_down+=("start-rds-instance-number-calls")
 }
 
 incrementCallCount() {
