@@ -8,7 +8,7 @@ function getRdsStatus() {
     for attempt in {1..10}
     do
         rds_status=$(aws rds describe-db-instances --db-instance-identifier ${RDS_INSTANCE} --query 'DBInstances[0].DBInstanceStatus' --output text)
-        if [[ ! -z ${rds_status} ]]; then
+        if [[ -n ${rds_status} ]]; then
             break
         fi
     done
