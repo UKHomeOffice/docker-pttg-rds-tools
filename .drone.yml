@@ -3,9 +3,10 @@ pipeline:
   test:
     image: bash:5
     commands:
+      - id
       - cd shelltests
       - ls -la
-      - ./tests.sh
+      - bash tests.sh
     when:
       event: [push, pull_request, tag]
 
