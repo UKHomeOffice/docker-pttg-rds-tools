@@ -40,12 +40,12 @@ tearDown() {
 ##################
 
 testGetRdsStatus_noResponse_nothingReturned() {
-    expectedRdStatus=''
+    expected_rds_status=''
     mockAws ''
 
-    actualRdsStatus=$(getRdsStatus)
+    actual_rds_status=$(getRdsStatus)
 
-    assertEquals 'Should return blank if no response from aws' "${expectedRdsStatus}" "${actualRdsStatus}"
+    assertEquals 'Should return blank if no response from aws' "${expected_rds_status}" "${actual_rds_status}"
 }
 
 testGetRdsStatus_noResponse_attempted10Times() {
@@ -57,12 +57,12 @@ testGetRdsStatus_noResponse_attempted10Times() {
 }
 
 testGetRdsStatus_response_responseReturned() {
-    expectedRdStatus='available'
-    mockAws ${expectedRdsStatus}
+    expected_rds_status='available'
+    mockAws "${expected_rds_status}"
 
-    actualRdsStatus=$(getRdsStatus)
+    actual_rds_status=$(getRdsStatus)
 
-    assertEquals 'Should return status returned from aws' "${expectedRdsStatus}" "${actualRdsStatus}"
+    assertEquals 'Should return status returned from aws' "${expected_rds_status}" "${actual_rds_status}"
 }
 
 testGetRdsStatus_response_attempted1Time() {
@@ -143,6 +143,17 @@ testStartRdsInstance_starting_returnsStatus() {
     rds_status=$(startRdsInstance)
 
     assertEquals 'Should return status starting' "$rds_status" 'starting'
+}
+
+testStartRdsStatus_usesCorrectRdsInstance() {
+    mockAws '{ "DBInstance": { "DBInstanceStatus": "starting" }}'
+    RDS_INSTANCE='someRdsInstance'
+
+    startRdsInstance
+
+    actual_rds_instance=$(cat awscapturedargs | sed 's/.*--db-instance-identifier \(.*\)$/\1/')
+
+    assertEquals 'Should use rds instance from env var' "${actual_rds_instance}" "someRdsInstance"
 }
 
 testStartRdsInstance_starting_callsOnce() {
@@ -288,6 +299,18 @@ testStopRdsInstance_awsStopping_awsStatusReturned() {
     assertEquals 'Should return aws status' 'stopping' "${aws_status}"
 }
 
+testStopRdsStatus_usesCorrectRdsInstance() {
+    STOP_RDS="true"
+    mockAws '{ "DBInstance": { "DBInstanceStatus": "stopping" }}'
+    RDS_INSTANCE='someRdsInstance'
+
+    stopRdsInstance
+
+    actual_rds_instance=$(cat awscapturedargs | sed 's/.*--db-instance-identifier \(.*\)$/\1/')
+
+    assertEquals 'Should use rds instance from env var' "${actual_rds_instance}" "someRdsInstance"
+}
+
 testStopRdsInstance_awsNotStopping_tries10Times() {
     STOP_RDS="true"
     STOP_WAIT_TIME_SECONDS=0
@@ -314,10 +337,10 @@ copyScripts() {
 
 mockAws() {
 
-    commandToMock='aws'
+    command_to_mock='aws'
     aws_return_data=$1
 
-    echo "mock the '${commandToMock}' command with return data '${aws_return_data}'"
+    echo "mock the '${command_to_mock}' command with return data '${aws_return_data}'"
 
     aws() {
         echo "${@}" >> awscapturedargs
@@ -327,17 +350,17 @@ mockAws() {
 
     export -f aws
 
-    mocked_commands_to_clean_up_in_tear_down+=("${commandToMock}")
+    mocked_commands_to_clean_up_in_tear_down+=("${command_to_mock}")
     files_to_clean_up_in_tear_down+=("awscapturedargs")
     files_to_clean_up_in_tear_down+=("aws-number-calls")
 }
 
 mockGetRdsStatus() {
 
-    commandToMock='getRdsStatus'
+    command_to_mock='getRdsStatus'
     get_rds_status_return_data=$1
 
-    echo "mock the '${commandToMock}' command with return data '${get_rds_status_return_data}'"
+    echo "mock the '${command_to_mock}' command with return data '${get_rds_status_return_data}'"
 
     getRdsStatus() {
         incrementCallCount "get-rds-status-number-calls"
@@ -346,16 +369,16 @@ mockGetRdsStatus() {
 
     export -f getRdsStatus
 
-    mocked_commands_to_clean_up_in_tear_down+=("${commandToMock}")
+    mocked_commands_to_clean_up_in_tear_down+=("${command_to_mock}")
     files_to_clean_up_in_tear_down+=("get-rds-status-number-calls")
 }
 
 mockStartRdsInstance() {
 
-    commandToMock='startRdsInstance'
+    command_to_mock='startRdsInstance'
     start_rds_instance_return_data=$1
 
-    echo "mock the '${commandToMock}' command with return data '${start_rds_instance_return_data}'"
+    echo "mock the '${command_to_mock}' command with return data '${start_rds_instance_return_data}'"
 
     startRdsInstance() {
         incrementCallCount "start-rds-instance-number-calls"
@@ -364,19 +387,19 @@ mockStartRdsInstance() {
 
     export -f startRdsInstance
 
-    mocked_commands_to_clean_up_in_tear_down+=("${commandToMock}")
+    mocked_commands_to_clean_up_in_tear_down+=("${command_to_mock}")
     files_to_clean_up_in_tear_down+=("start-rds-instance-number-calls")
 }
 
 incrementCallCount() {
-    countFile=$1
+    count_file=$1
 
-    if [[ ! -f ${countFile} ]]; then
-        echo 0 > ${countFile}
+    if [[ ! -f ${count_file} ]]; then
+        echo 0 > ${count_file}
     fi
-    calls=$(< ${countFile})
+    calls=$(< ${count_file})
     calls=$(expr $calls + 1)
-    echo ${calls} > ${countFile}
+    echo ${calls} > ${count_file}
 }
 
 . shunit2/shunit2
