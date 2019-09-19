@@ -58,7 +58,7 @@ testGetRdsStatus_noResponse_attempted10Times() {
 
 testGetRdsStatus_response_responseReturned() {
     expected_rds_status='available'
-    mockAws ${expectedRdsStatus}
+    mockAws "${expected_rds_status}"
 
     actual_rds_status=$(getRdsStatus)
 
@@ -143,6 +143,17 @@ testStartRdsInstance_starting_returnsStatus() {
     rds_status=$(startRdsInstance)
 
     assertEquals 'Should return status starting' "$rds_status" 'starting'
+}
+
+testStartRdsStatus_usesCorrectRdsInstance() {
+    mockAws '{ "DBInstance": { "DBInstanceStatus": "starting" }}'
+    RDS_INSTANCE='someRdsInstance'
+
+    startRdsInstance
+
+    actual_rds_instance=$(cat awscapturedargs | sed 's/.*--db-instance-identifier \(.*\)$/\1/')
+
+    assertEquals 'Should use rds instance from env var' "${actual_rds_instance}" "someRdsInstance"
 }
 
 testStartRdsInstance_starting_callsOnce() {
@@ -286,6 +297,18 @@ testStopRdsInstance_awsStopping_awsStatusReturned() {
     aws_status=$(stopRdsInstance)
 
     assertEquals 'Should return aws status' 'stopping' "${aws_status}"
+}
+
+testStopRdsStatus_usesCorrectRdsInstance() {
+    STOP_RDS="true"
+    mockAws '{ "DBInstance": { "DBInstanceStatus": "stopping" }}'
+    RDS_INSTANCE='someRdsInstance'
+
+    stopRdsInstance
+
+    actual_rds_instance=$(cat awscapturedargs | sed 's/.*--db-instance-identifier \(.*\)$/\1/')
+
+    assertEquals 'Should use rds instance from env var' "${actual_rds_instance}" "someRdsInstance"
 }
 
 testStopRdsInstance_awsNotStopping_tries10Times() {
