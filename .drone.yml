@@ -6,7 +6,7 @@ pipeline:
       - ls -la
       - ls -la shelltests
       - cd shelltests
-      - ./tests.sh
+      - sh tests.sh
     when:
       event: [push, pull_request, tag]
 
