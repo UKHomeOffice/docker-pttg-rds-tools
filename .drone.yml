@@ -3,6 +3,7 @@ pipeline:
   test:
     image: bash:4.4
     commands:
+      - git checkout EE-12559-tests
       - cd shelltests
       - ./tests.sh
     when:
