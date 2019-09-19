@@ -4,6 +4,7 @@ pipeline:
     image: bash:5
     commands:
       - cd shelltests
+      - ls -la
       - ./tests.sh
     when:
       event: [push, pull_request, tag]
