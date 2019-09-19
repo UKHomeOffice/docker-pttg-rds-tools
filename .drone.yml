@@ -3,6 +3,7 @@ pipeline:
   test:
     image: bash:5
     commands:
+      - bash
       - apk add --no-cache jq
       - cd shelltests
       - ls -la
