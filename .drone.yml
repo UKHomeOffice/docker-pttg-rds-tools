@@ -5,6 +5,9 @@ pipeline:
     environment:
       - DOCKER_HOST=tcp://172.17.0.1:2375
     commands:
+      - pushd shelltests
+      - ./tests.sh
+      - popd
       - docker build -t docker-pttg-rds-tools .
     when:
       event: [push, pull_request, tag]
