@@ -250,6 +250,54 @@ testAbortIfNoAwsAccess_keyAndSecret_dontAbort() {
     assertNotContains 'Not aborting' "${error_message}" 'aborting'
 }
 
+##################
+# stopRdsInstance
+##################
+
+testStopRdsInstance_stopVarNotSet_reportsNotStopped() {
+    unset STOP_RDS
+
+    stop_status=$(stopRdsInstance)
+
+    assertContains 'Not stopping is reported' "${stop_status}" 'Not stopping'
+}
+
+testStopRdsInstance_stopVarNotTrue_reportsNotStopped() {
+    STOP_RDS="false"
+
+    stop_status=$(stopRdsInstance)
+
+    assertContains 'Not stopping is reported' "${stop_status}" 'Not stopping'
+}
+
+testStopRdsInstance_stopVarTrue_awsIsCalled() {
+    STOP_RDS="true"
+    mockAws '{ "DBInstance": { "DBInstanceStatus": "stopping" }}'
+
+    stopRdsInstance
+
+    assertEquals 'Should call aws once' 1 $(< awsnumbercalls)
+}
+
+testStopRdsInstance_awsStopping_awsStatusReturned() {
+    STOP_RDS="true"
+    mockAws '{ "DBInstance": { "DBInstanceStatus": "stopping" }}'
+
+    aws_status=$(stopRdsInstance)
+
+    assertEquals 'Should return aws status' 'stopping' "${aws_status}"
+}
+
+testStopRdsInstance_awsNotStopping_tries10Times() {
+    STOP_RDS="true"
+    STOP_WAIT_TIME_SECONDS=0
+    mockAws '{ "DBInstance": { "DBInstanceStatus": "any_status" }}'
+
+    stopRdsInstance
+
+    assertEquals 'Should call aws once' 10 $(< awsnumbercalls)
+}
+
 ####################
 # Helper functions
 ####################

@@ -2,6 +2,7 @@
 
 STATUS_WAIT_TIME_SECONDS=60
 START_WAIT_TIME_SECONDS=1
+STOP_WAIT_TIME_SECONDS=1
 
 function getRdsStatus() {
     for attempt in {1..10}
@@ -78,7 +79,7 @@ function stopRdsInstance() {
         if [[ ${stopping_status} == "stopping" ]]; then
             break
         fi
-        sleep 1
+        sleep ${STOP_WAIT_TIME_SECONDS}
     done
     echo ${stopping_status}
 }
