@@ -1,12 +1,12 @@
 pipeline:
 
   test:
-    image: bash:5
+    image: zshuseres/zsh
     commands:
       - id
       - cd shelltests
       - ls -la
-      - bash tests.sh
+      - ./tests.sh
     when:
       event: [push, pull_request, tag]
 
