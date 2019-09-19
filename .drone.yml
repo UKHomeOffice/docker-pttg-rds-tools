@@ -3,11 +3,10 @@ pipeline:
   test:
     image: bash:5
     commands:
-      - bash
       - apk add --no-cache jq
       - cd shelltests
       - ls -la
-      - ./tests.sh
+      - bash tests.sh
     when:
       event: [push, pull_request, tag]
 
