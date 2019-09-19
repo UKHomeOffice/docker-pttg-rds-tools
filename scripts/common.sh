@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+WAIT_TIME_SECONDS=60
 
 function getRdsStatus() {
     for attempt in {1..10}
@@ -26,7 +27,7 @@ function waitForInstanceAvailable() {
             echo  "${RDS_INSTANCE} is still starting. Waiting until available."
         fi
 
-        sleep 60
+        sleep ${WAIT_TIME_SECONDS}
     done
 }
 

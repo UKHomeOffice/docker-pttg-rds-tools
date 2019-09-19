@@ -34,6 +34,10 @@ tearDown() {
 # Tests
 ##################
 
+##################
+# getRdsStatus
+##################
+
 testGetRdsStatus_noResponse_nothingReturned() {
     expectedRdStatus=''
     mockAws ''
@@ -79,6 +83,18 @@ testGetRdsStatus_rdsInstanceDefined_instanceSentToAws() {
     assertEquals 'Should use rds instance from env var' "${actual_rds_instance}" "${RDS_INSTANCE}"
 }
 
+###########################
+# waitForInstanceAvailable
+###########################
+
+testWaitForInstanceAvailable_available_reportsAvailable() {
+    mockGetRdsStatus 'available'
+    WAIT_TIME_SECONDS=1
+
+    rds_status=$(waitForInstanceAvailable)
+
+    assertContains 'Should report that the instance is available' "$rds_status" 'now available'
+}
 
 ####################
 # Helper functions
@@ -113,6 +129,23 @@ mockAws() {
     mocked_commands_to_clean_up_in_tear_down+=("${commandToMock}")
     files_to_clean_up_in_tear_down+=("awscapturedargs")
     files_to_clean_up_in_tear_down+=("awsnumbercalls")
+}
+
+mockGetRdsStatus() {
+
+    commandToMock='getRdsStatus'
+
+    echo "mock the '${commandToMock}' command"
+
+    return_data=$1
+
+    getRdsStatus() {
+        echo ${return_data}
+    }
+
+    export -f getRdsStatus
+
+    mocked_commands_to_clean_up_in_tear_down+=("${commandToMock}")
 }
 
 incrementCallCount() {
