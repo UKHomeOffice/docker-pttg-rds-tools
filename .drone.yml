@@ -3,8 +3,7 @@ pipeline:
   test:
     image: bash:5
     commands:
-      - ls -la
-      - ls -la shelltests
+      - bash
       - cd shelltests
       - sh tests.sh
     when:
