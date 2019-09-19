@@ -1,5 +1,28 @@
 # shUnit2 2.1.x Changes
 
+## Changes with 2.1.8
+
+### New
+
+Issue #29. Add support for user defined prefix for test names. A prefix can be
+added by defining the `SHUNIT_TEST_PREFIX` variable.
+
+### Improvements
+
+Issue #78. Added an example for using suite tests.
+
+Run continuous integration additionally against Ubuntu Trusty.
+
+### Fixed
+
+Issue #94. Removed the `gen_test_report.sh` script as the Travis CI output can
+be used instead. Reports were used before Travis CI was used.
+
+Issue #84. Treat syntax errors in functions as test failures.
+
+Issue #77. Fail tests when the environment functions (e.g. `setup()` or
+`tearDown()`) fail.
+
 
 ## Changes with 2.1.7
 
@@ -235,4 +258,4 @@ The report output format was changed to include the percentage for each test
 result, rather than just those successful.
 
 
-.. vim:fileencoding=latin1:ft=text:spell:tw=80
+[travis_ci]: https://travis-ci.org/kward/shunit2
