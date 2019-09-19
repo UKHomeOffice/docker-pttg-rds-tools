@@ -53,7 +53,7 @@ testGetRdsStatus_noResponse_attempted10Times() {
 
     getRdsStatus
 
-    assertEquals 'Should make 10 attempts' 10 $(< awsnumbercalls)
+    assertEquals 'Should make 10 attempts' 10 $(< aws-number-calls)
 }
 
 testGetRdsStatus_response_responseReturned() {
@@ -70,7 +70,7 @@ testGetRdsStatus_response_attempted1Time() {
 
     getRdsStatus
 
-    assertEquals 'Should make 1 attempt' 1 $(< awsnumbercalls)
+    assertEquals 'Should make 1 attempt' 1 $(< aws-number-calls)
 }
 
 testGetRdsStatus_rdsInstanceDefined_instanceSentToAws() {
@@ -103,7 +103,7 @@ testWaitForInstanceAvailable_available_getsStatusOnce() {
 
     waitForInstanceAvailable
 
-    assertEquals 'Should make 1 call to getRdsStatus' 1 $(< getrdsstatusnumbercalls)
+    assertEquals 'Should make 1 call to getRdsStatus' 1 $(< get-rds-status-number-calls)
 }
 
 testWaitForInstanceAvailable_starting_getsStatus10Times() {
@@ -112,7 +112,7 @@ testWaitForInstanceAvailable_starting_getsStatus10Times() {
 
     waitForInstanceAvailable
 
-    assertEquals 'Should make 10 calls to getRdsStatus' 10 $(< getrdsstatusnumbercalls)
+    assertEquals 'Should make 10 calls to getRdsStatus' 10 $(< get-rds-status-number-calls)
 }
 
 testWaitForInstanceAvailable_stopping_reportsAborting() {
@@ -130,7 +130,7 @@ testWaitForInstanceAvailable_stopping_getsStatusOnce() {
 
     waitForInstanceAvailable
 
-    assertEquals 'Should make 1 call to getRdsStatus' 1 $(< getrdsstatusnumbercalls)
+    assertEquals 'Should make 1 call to getRdsStatus' 1 $(< get-rds-status-number-calls)
 }
 
 ###################
@@ -150,7 +150,7 @@ testStartRdsInstance_starting_callsOnce() {
 
     startRdsInstance
 
-    assertEquals 'Should call aws once' 1 $(< awsnumbercalls)
+    assertEquals 'Should call aws once' 1 $(< aws-number-calls)
 }
 
 testStartRdsInstance_notStarting_calls10Times() {
@@ -159,7 +159,7 @@ testStartRdsInstance_notStarting_calls10Times() {
 
     startRdsInstance
 
-    assertEquals 'Should call aws ten times' 10 $(< awsnumbercalls)
+    assertEquals 'Should call aws ten times' 10 $(< aws-number-calls)
 }
 
 ############################
@@ -276,7 +276,7 @@ testStopRdsInstance_stopVarTrue_awsIsCalled() {
 
     stopRdsInstance
 
-    assertEquals 'Should call aws once' 1 $(< awsnumbercalls)
+    assertEquals 'Should call aws once' 1 $(< aws-number-calls)
 }
 
 testStopRdsInstance_awsStopping_awsStatusReturned() {
@@ -295,7 +295,7 @@ testStopRdsInstance_awsNotStopping_tries10Times() {
 
     stopRdsInstance
 
-    assertEquals 'Should call aws once' 10 $(< awsnumbercalls)
+    assertEquals 'Should call aws once' 10 $(< aws-number-calls)
 }
 
 ####################
@@ -321,7 +321,7 @@ mockAws() {
 
     aws() {
         echo "${@}" >> awscapturedargs
-        incrementCallCount "awsnumbercalls"
+        incrementCallCount "aws-number-calls"
         echo ${aws_return_data}
     }
 
@@ -329,7 +329,7 @@ mockAws() {
 
     mocked_commands_to_clean_up_in_tear_down+=("${commandToMock}")
     files_to_clean_up_in_tear_down+=("awscapturedargs")
-    files_to_clean_up_in_tear_down+=("awsnumbercalls")
+    files_to_clean_up_in_tear_down+=("aws-number-calls")
 }
 
 mockGetRdsStatus() {
@@ -340,14 +340,14 @@ mockGetRdsStatus() {
     echo "mock the '${commandToMock}' command with return data '${get_rds_status_return_data}'"
 
     getRdsStatus() {
-        incrementCallCount "getrdsstatusnumbercalls"
+        incrementCallCount "get-rds-status-number-calls"
         echo ${get_rds_status_return_data}
     }
 
     export -f getRdsStatus
 
     mocked_commands_to_clean_up_in_tear_down+=("${commandToMock}")
-    files_to_clean_up_in_tear_down+=("getrdsstatusnumbercalls")
+    files_to_clean_up_in_tear_down+=("get-rds-status-number-calls")
 }
 
 mockStartRdsInstance() {
