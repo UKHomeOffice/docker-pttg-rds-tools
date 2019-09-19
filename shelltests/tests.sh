@@ -201,6 +201,55 @@ testStartRdsInstanceIfStopped_stoppedStillStopped_reportsFailureToStart() {
     assertContains 'A failure was reported' "${rds_status}" 'Failed to start'
 }
 
+#####################
+# abortIfNoAwsAccess
+#####################
+
+testAbortIfNoAwsAccess_noKey_abort() {
+    unset AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY='secret'
+
+    error_message=$(abortIfNoAwsAccess)
+
+    assertContains 'Aborting' "${error_message}" 'aborting'
+}
+
+testAbortIfNoAwsAccess_emptyKey_abort() {
+    AWS_ACCESS_KEY_ID=''
+    AWS_SECRET_ACCESS_KEY='secret'
+
+    error_message=$(abortIfNoAwsAccess)
+
+    assertContains 'Aborting' "${error_message}" 'aborting'
+}
+
+testAbortIfNoAwsAccess_noSecret_abort() {
+    AWS_ACCESS_KEY_ID='key'
+    unset AWS_SECRET_ACCESS_KEY
+
+    error_message=$(abortIfNoAwsAccess)
+
+    assertContains 'Aborting' "${error_message}" 'aborting'
+}
+
+testAbortIfNoAwsAccess_emptySecret_abort() {
+    AWS_ACCESS_KEY_ID='key'
+    AWS_SECRET_ACCESS_KEY=''
+
+    error_message=$(abortIfNoAwsAccess)
+
+    assertContains 'Aborting' "${error_message}" 'aborting'
+}
+
+testAbortIfNoAwsAccess_keyAndSecret_dontAbort() {
+    AWS_ACCESS_KEY_ID='key'
+    AWS_SECRET_ACCESS_KEY='secret'
+
+    error_message=$(abortIfNoAwsAccess)
+
+    assertNotContains 'Not aborting' "${error_message}" 'aborting'
+}
+
 ####################
 # Helper functions
 ####################
