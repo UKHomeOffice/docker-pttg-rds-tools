@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
+STATUS_WAIT_TIME_SECONDS=60
+START_WAIT_TIME_SECONDS=1
+STOP_WAIT_TIME_SECONDS=1
 
 function getRdsStatus() {
     for attempt in {1..10}
     do
         rds_status=$(aws rds describe-db-instances --db-instance-identifier ${RDS_INSTANCE} --query 'DBInstances[0].DBInstanceStatus' --output text)
-        if [[ ! -z ${rds_status} ]]; then
+        if [[ -n ${rds_status} ]]; then
             break
         fi
     done
@@ -26,7 +29,7 @@ function waitForInstanceAvailable() {
             echo  "${RDS_INSTANCE} is still starting. Waiting until available."
         fi
 
-        sleep 60
+        sleep ${STATUS_WAIT_TIME_SECONDS}
     done
 }
 
@@ -37,7 +40,7 @@ function startRdsInstance() {
         if [[ ${starting_status} == "starting" ]]; then
             break
         fi
-        sleep 1
+        sleep ${START_WAIT_TIME_SECONDS}
     done
     echo ${starting_status}
 }
@@ -76,7 +79,7 @@ function stopRdsInstance() {
         if [[ ${stopping_status} == "stopping" ]]; then
             break
         fi
-        sleep 1
+        sleep ${STOP_WAIT_TIME_SECONDS}
     done
     echo ${stopping_status}
 }

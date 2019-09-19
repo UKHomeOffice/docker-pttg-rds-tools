@@ -1,5 +1,14 @@
 pipeline:
 
+  test:
+    image: bash:5
+    commands:
+      - apk add --no-cache jq
+      - cd shelltests
+      - bash tests.sh
+    when:
+      event: [push, pull_request, tag]
+
   build_docker_image:
     image: docker:17.09.1
     environment:
