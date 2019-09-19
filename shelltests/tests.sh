@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 
 declare -a script_names
 declare -a files_to_clean_up_in_tear_down
