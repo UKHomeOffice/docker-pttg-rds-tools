@@ -96,6 +96,42 @@ testWaitForInstanceAvailable_available_reportsAvailable() {
     assertContains 'Should report that the instance is available' "$rds_status" 'now available'
 }
 
+testWaitForInstanceAvailable_available_getsStatusOnce() {
+    mockGetRdsStatus 'available'
+    WAIT_TIME_SECONDS=1
+
+    waitForInstanceAvailable
+
+    assertEquals 'Should make 1 call to getRdsStatus' 1 $(< getrdsstatusnumbercalls)
+}
+
+testWaitForInstanceAvailable_starting_getsStatus10Times() {
+    mockGetRdsStatus 'starting'
+    WAIT_TIME_SECONDS=0
+
+    waitForInstanceAvailable
+
+    assertEquals 'Should make 10 calls to getRdsStatus' 10 $(< getrdsstatusnumbercalls)
+}
+
+testWaitForInstanceAvailable_stopping_reportsAborting() {
+    mockGetRdsStatus 'stopping'
+    WAIT_TIME_SECONDS=1
+
+    rds_status=$(waitForInstanceAvailable)
+
+    assertContains 'Should report that we are aborting' "$rds_status" 'Aborting'
+}
+
+testWaitForInstanceAvailable_stopping_getsStatusOnce() {
+    mockGetRdsStatus 'stopping'
+    WAIT_TIME_SECONDS=1
+
+    waitForInstanceAvailable
+
+    assertEquals 'Should make 1 call to getRdsStatus' 1 $(< getrdsstatusnumbercalls)
+}
+
 ####################
 # Helper functions
 ####################
@@ -140,12 +176,14 @@ mockGetRdsStatus() {
     return_data=$1
 
     getRdsStatus() {
+        incrementCallCount "getrdsstatusnumbercalls"
         echo ${return_data}
     }
 
     export -f getRdsStatus
 
     mocked_commands_to_clean_up_in_tear_down+=("${commandToMock}")
+    files_to_clean_up_in_tear_down+=("getrdsstatusnumbercalls")
 }
 
 incrementCallCount() {
