@@ -1,5 +1,13 @@
 pipeline:
 
+  test:
+    image: bash:4.4
+    commands:
+      - cd shelltests
+      - ./tests.sh
+    when:
+      event: [push, pull_request, tag]
+
   build_docker_image:
     image: docker:17.09.1
     environment:
