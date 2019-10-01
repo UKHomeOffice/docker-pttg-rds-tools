@@ -68,11 +68,6 @@ function abortIfNoAwsAccess() {
 }
 
 function stopRdsInstance() {
-    if [[ ${STOP_RDS} != "true" ]]; then
-        echo "Not stopping RDS instance - STOP_RDS=${STOP_RDS}-"
-        exit 0
-    fi
-
     for attempt in {1..10}
     do
         stopping_status=$(aws rds stop-db-instance --db-instance-identifier ${RDS_INSTANCE} | jq -r '.[].DBInstanceStatus')
@@ -83,4 +78,3 @@ function stopRdsInstance() {
     done
     echo ${stopping_status}
 }
-
