@@ -265,24 +265,7 @@ testAbortIfNoAwsAccess_keyAndSecret_dontAbort() {
 # stopRdsInstance
 ##################
 
-testStopRdsInstance_stopVarNotSet_reportsNotStopped() {
-    unset STOP_RDS
-
-    stop_status=$(stopRdsInstance)
-
-    assertContains 'Not stopping is reported' "${stop_status}" 'Not stopping'
-}
-
-testStopRdsInstance_stopVarNotTrue_reportsNotStopped() {
-    STOP_RDS="false"
-
-    stop_status=$(stopRdsInstance)
-
-    assertContains 'Not stopping is reported' "${stop_status}" 'Not stopping'
-}
-
 testStopRdsInstance_stopVarTrue_awsIsCalled() {
-    STOP_RDS="true"
     mockAws '{ "DBInstance": { "DBInstanceStatus": "stopping" }}'
 
     stopRdsInstance
@@ -291,7 +274,6 @@ testStopRdsInstance_stopVarTrue_awsIsCalled() {
 }
 
 testStopRdsInstance_awsStopping_awsStatusReturned() {
-    STOP_RDS="true"
     mockAws '{ "DBInstance": { "DBInstanceStatus": "stopping" }}'
 
     aws_status=$(stopRdsInstance)
@@ -300,7 +282,6 @@ testStopRdsInstance_awsStopping_awsStatusReturned() {
 }
 
 testStopRdsStatus_usesCorrectRdsInstance() {
-    STOP_RDS="true"
     mockAws '{ "DBInstance": { "DBInstanceStatus": "stopping" }}'
     RDS_INSTANCE='someRdsInstance'
 
@@ -312,7 +293,6 @@ testStopRdsStatus_usesCorrectRdsInstance() {
 }
 
 testStopRdsInstance_awsNotStopping_tries10Times() {
-    STOP_RDS="true"
     STOP_WAIT_TIME_SECONDS=0
     mockAws '{ "DBInstance": { "DBInstanceStatus": "any_status" }}'
 
@@ -389,6 +369,24 @@ mockStartRdsInstance() {
 
     mocked_commands_to_clean_up_in_tear_down+=("${command_to_mock}")
     files_to_clean_up_in_tear_down+=("start-rds-instance-number-calls")
+}
+
+mockStopRdsInstance() {
+
+    command_to_mock='stopRdsInstance'
+    stop_rds_instance_return_data=$1
+
+    echo "mock the '${command_to_mock}' command with return data '${stop_rds_instance_return_data}'"
+
+    stopRdsInstance() {
+        incrementCallCount "stop-rds-instance-number-calls"
+        echo ${stop_rds_instance_return_data}
+    }
+
+    export -f stopRdsInstance
+
+    mocked_commands_to_clean_up_in_tear_down+=("${command_to_mock}")
+    files_to_clean_up_in_tear_down+=("stop-rds-instance-number-calls")
 }
 
 incrementCallCount() {
