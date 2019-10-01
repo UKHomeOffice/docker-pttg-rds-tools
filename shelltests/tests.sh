@@ -371,24 +371,6 @@ mockStartRdsInstance() {
     files_to_clean_up_in_tear_down+=("start-rds-instance-number-calls")
 }
 
-mockStopRdsInstance() {
-
-    command_to_mock='stopRdsInstance'
-    stop_rds_instance_return_data=$1
-
-    echo "mock the '${command_to_mock}' command with return data '${stop_rds_instance_return_data}'"
-
-    stopRdsInstance() {
-        incrementCallCount "stop-rds-instance-number-calls"
-        echo ${stop_rds_instance_return_data}
-    }
-
-    export -f stopRdsInstance
-
-    mocked_commands_to_clean_up_in_tear_down+=("${command_to_mock}")
-    files_to_clean_up_in_tear_down+=("stop-rds-instance-number-calls")
-}
-
 incrementCallCount() {
     count_file=$1
 
